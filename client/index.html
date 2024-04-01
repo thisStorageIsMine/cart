@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="./icons8-cart-24.png">
+    <title>621Чёрный Корзина</title>
+    <link rel="stylesheet" href="global.css">
+</head>
+
+<body class="
+            text-red-400
+            font-sans
+            min-h-screen 
+            bg-slate-800
+            grid
+            grid-cols-[65%_35%]
+            ">
+
+
+    <section id="storage" class="flex flex-col gap-8 p-20 overflow-scroll text-slate-800 text-2xl">
+
+        <!-- <h1 class="text-4xl text-stone-50">
+            Все товары
+        </h1> -->
+
+
+        <!-- <span class="relative   rounded-xl w-full h-24 flex gap-12 justify-between items-center py-2 px-4 -z-10  overflow-hidden
+        before:absolute before:inset-[2px] before:rounded-xl  before:bg-slate-900 before:-z-[1]
+        animate-pulse
+        ">
+            <span class="w-[200px] h-8 rounded-md bg-slate-800 overflow-hidden"></span>
+            <span class="w-[350px] ml-40 h-8 rounded-md bg-slate-800 ">;</span>
+            <span class="w-[200px] h-8 rounded-md bg-slate-800 "></span>
+
+            <span class="w-6 h-6  relative py-1 px-2 border-none  shadow-lg rounded-lg bg-slate-800  ">
+
+            </span>
+        </span> -->
+
+
+
+    </section>
+
+    <section id="cart"
+        class="bg-slate-200 flex flex-col gap-8 py-20 px-12 overflow-scroll text-slate-200 text-2xl relative min-h-screen">
+        <h2 class="text-4xl text-slate-800">Корзина</h2>
+
+        <div class=" bg-slate-800 rounded-xl w-full h-24 flex gap-12 justify-between items-center py-2 px-4">
+            <h2 class="w-[200px] text-ellipsis">Футболка</h2>
+            <p class="w-[200px] text-xl">2999 &#8381;</p>
+
+            <div class="flex justify-center items-center">
+                <button class="flex justify-center items-center rounded-full border border-white p-1">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M21.1667 10.34H2.83333C2.37292 10.34 2 10.7129 2 11.1733V12.84C2 13.3004 2.37292 13.6733 2.83333 13.6733H21.1667C21.6271 13.6733 22 13.3004 22 12.84V11.1733C22 10.7129 21.6271 10.34 21.1667 10.34Z"
+                            fill="white" />
+                    </svg>
+                </button>
+
+                <input
+                    class="w-12 text-center bg-transparent w-12 text-slate-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    type="number" value="1">
+
+                <button class="flex justify-center items-center rounded-full border border-white p-1">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M21.1667 10.3333H13.6667V2.83333C13.6667 2.37292 13.2937 2 12.8333 2H11.1667C10.7063 2 10.3333 2.37292 10.3333 2.83333V10.3333H2.83333C2.37292 10.3333 2 10.7063 2 11.1667V12.8333C2 13.2937 2.37292 13.6667 2.83333 13.6667H10.3333V21.1667C10.3333 21.6271 10.7063 22 11.1667 22H12.8333C13.2937 22 13.6667 21.6271 13.6667 21.1667V13.6667H21.1667C21.6271 13.6667 22 13.2937 22 12.8333V11.1667C22 10.7063 21.6271 10.3333 21.1667 10.3333Z"
+                            fill="white" />
+                    </svg>
+                </button>
+            </div>
+
+        </div>
+
+        <div class="absolute left-0 bottom-0 bg-slate-300 w-full py-4 px-6" id=" payment">
+            <div>
+                <h3>Всего</h3>
+
+                <p><span>2999</span> &#8381;</p>
+            </div>
+            <button
+                class="bg-[#2f27ce] w-full h-12 rounded-md mt-6 hover:bg-blue-950 hover:text-slate-300">Купить</button>
+        </div>
+    </section>
+
+    <script src="cart.js"></script>
+</body>
+
+</html>

@@ -6,17 +6,20 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx nodemon --env-file .env server.js"
+    "start": "npx nodemon --env-file .env ./server/server.js",
+    "twrun": "tailwindcss build -i ./client/style.css -o ./client/global.css"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.4.5",
+    "@fastify/cors": "^9.0.1",
     "fastify": "^4.26.2",
     "mysql2": "^3.9.2"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "tailwindcss": "^3.4.3",
+    "typescript": "^5.4.3"
   }
 }

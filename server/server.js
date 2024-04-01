@@ -1,24 +1,37 @@
-import dbSettings from "./DATABASE.conf.js";
 import fastify from "fastify";
+import cors from '@fastify/cors';
 import mysql from 'mysql2/promise';
 
 
 // Создаю сервер через библеотеку
 const server = fastify();
+await server.register(cors, {
+    origin: true
+})
+
 
 // Настраиваю бд
 const pool = mysql.createPool({
     connectionLimit: 100,
     host: process.env.HOST,
+    port: process.env.DBPORT,
     user: process.env.DBUSER,
     password: process.env.PASSWORD,
     database: process.env.DATABASE
 });
 
+console.log(process.env.HOST);
+
 // Роуты
 server.get('/', async (req, reply) => {
     const queryRes = await getUsers();
 
+    return queryRes[0];
+});
+
+//Список товаров на складе
+server.get("/storage", async (res, reply) => {
+    const queryRes = await getGoods();
     return queryRes[0];
 });
 
@@ -79,9 +92,7 @@ async function getUsers() {
     return await pool.query('SELECT * FROM users');
 }
 
-async function createGood(good) {
-    const q = await pool.query(`INSERT INTO storage (id, name, price, amount)
-                                VALUES (NULL, '${good.name}', '${good.price}', '${good.amount}');`)
+async function getGoods() {
+    return await pool.query('SELECT name, price, amount FROM storage');
 }
-
 
