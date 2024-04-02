@@ -3,7 +3,7 @@ const HOST = "localhost",
 
 
 const storageNode = document.getElementById("storage"),
-    cartNode = document.getElementById("cart");
+    cartNode = document.getElementById("cart-goods");
 
 cartNode!.style.display = "none";
 
@@ -51,16 +51,13 @@ function createGood(good: Good) {
         goodAmount = document.createElement("p"),
         goodBtn = document.createElement("button");
 
-    goodWrap.className += "border bg-slate-200 rounded-xl w-full h-24 flex gap-12 justify-between items-center py-2 px-4";
-    goodTitle.className = "w-[200px] text-ellipsis";
-    goodPrice.className = "w-[200px] text-ellipsis";
-    goodAmount.className = "w-[200px] text-ellipsis";
+    goodWrap.className = "border bg-slate-200 rounded-xl w-full h-24 flex gap-12 justify-between items-center py-2 px-4";
+    goodTitle.className = goodPrice.className = goodAmount.className = "w-[200px] text-ellipsis";
     goodBtn.className = "relative py-1 px-2 border-none  shadow-lg rounded-lg bg-slate-100 group flex justify-center items-center hover:bg-slate-900";
 
-    goodWrap.setAttribute("data-good", "true");
-    goodWrap.setAttribute("data-name", `${good.name}`);
-    goodWrap.setAttribute("data-name", `${good.price}`);
-    goodWrap.setAttribute("data-name", `${good.amount}`);
+    goodBtn.setAttribute("data-name", `${good.name}`);
+    goodBtn.setAttribute("data-price", `${good.price}`);
+    goodBtn.setAttribute("data-amount", `${good.amount}`);
     goodBtn.setAttribute("title", "Добавить в корзину");
 
     goodTitle.textContent = good.name;
@@ -79,30 +76,6 @@ function createGood(good: Good) {
 
     storageNode.append(goodWrap);
 
-    // storageNode.innerHTML += `
-
-    // <div class="border bg-slate-200 rounded-xl w-full h-24 flex gap-12 justify-between items-center py-2 px-4"
-    //     data-good='true'
-    //     data-name='${good.name}'
-    //     data-price='${good.price}'
-    //     good.amount='${good.amount}'
-    // >
-    //     <h2 class="w-[200px] text-ellipsis">${good.name}</h2>
-    //     <p class="w-[200px] text-ellipsis">${good.price} &#8381;</p>
-    //     <p class="w-[200px] text-ellipsis">Кол-во: <span>${good.amount}</span></p>
-
-    //     <button
-    //         class="relative py-1 px-2 border-none  shadow-lg rounded-lg bg-slate-100 group flex justify-center items-center hover:bg-slate-900"
-    //         title="Добавить в корзину">
-    //         <svg class="w-6 group-hover:fill-slate-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-    //             <path
-    //                 d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" />
-    //         </svg>
-
-    //     </button>
-    // </div>
-
-    // `
 }
 
 function createGoodsError() {
@@ -119,37 +92,80 @@ function createGoodsError() {
 }
 
 function add2Cart(e: MouseEvent) {
-    console.log("add to cart!");
+    if (!e.currentTarget) return;
+    const target = e.currentTarget as HTMLButtonElement;
+
+    if (isGoodExist(target.dataset.name || "")) return;
+
+    const cartItem = createGoodCart(target);
+
+
+    cartNode?.append(cartItem);
 }
 
 
+function isGoodExist(name: string) {
+    if (!cartNode?.childNodes) return;
 
-`
-<div class=" bg-slate-800 rounded-xl w-full h-24 flex gap-12 justify-between items-center py-2 px-4">
-            <h2 class="w-[200px] text-ellipsis">Футболка</h2>
-            <p class="w-[200px] text-xl">2999 &#8381;</p>
+    for (let good of cartNode?.children) {
+        if (good instanceof HTMLElement) {
 
-            <div class="flex justify-center items-center">
-                <button class="flex justify-center items-center rounded-full border border-white p-1">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M21.1667 10.34H2.83333C2.37292 10.34 2 10.7129 2 11.1733V12.84C2 13.3004 2.37292 13.6733 2.83333 13.6733H21.1667C21.6271 13.6733 22 13.3004 22 12.84V11.1733C22 10.7129 21.6271 10.34 21.1667 10.34Z"
-                            fill="white" />
-                    </svg>
-                </button>
+            if (good.dataset.name === name) return true;
 
-                <input
-                    class="w-12 text-center bg-transparent text-slate-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    type="number" value="1">
+        }
+    }
 
-                <button class="flex justify-center items-center rounded-full border border-white p-1">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M21.1667 10.3333H13.6667V2.83333C13.6667 2.37292 13.2937 2 12.8333 2H11.1667C10.7063 2 10.3333 2.37292 10.3333 2.83333V10.3333H2.83333C2.37292 10.3333 2 10.7063 2 11.1667V12.8333C2 13.2937 2.37292 13.6667 2.83333 13.6667H10.3333V21.1667C10.3333 21.6271 10.7063 22 11.1667 22H12.8333C13.2937 22 13.6667 21.6271 13.6667 21.1667V13.6667H21.1667C21.6271 13.6667 22 13.2937 22 12.8333V11.1667C22 10.7063 21.6271 10.3333 21.1667 10.3333Z"
-                            fill="white" />
-                    </svg>
-                </button>
-            </div>
+    return false
+}
 
-        </div>
-`
+function createGoodCart(target: HTMLButtonElement) {
+    const cartItemWrap = document.createElement("div"),
+        cartItemTitle = document.createElement("h2"),
+        cartItemPrice = document.createElement("p"),
+        cartItemInputWrap = document.createElement("button"),
+        cartItemInputDecrease = document.createElement("button"),
+        cartItemInputIncrease = document.createElement("button"),
+        cartItemInput = document.createElement("input");
+
+    cartItemWrap.setAttribute("data-name", `${target.dataset.name}`);
+    cartItemTitle.setAttribute("title", `${target.dataset.name}`);
+
+    cartItemWrap.className = "bg-slate-800 rounded-xl w-full h-24 flex gap-12 justify-between items-center py-2 px-4 shrink-0";
+    cartItemTitle.className = "w-[200px] truncate";
+    cartItemPrice.className = "w-[200px] ttruncate text-xl";
+    cartItemInputWrap.className = "flex justify-center items-center";
+    cartItemInputDecrease.className = cartItemInputIncrease.className = "flex justify-center items-center rounded-full border border-white p-1";
+    cartItemInput.className = "w-12 text-center bg-transparent text-slate-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+
+    cartItemTitle.textContent = target.dataset.name as string;
+    cartItemPrice.innerHTML = `${target.dataset.price}`;
+    cartItemInput.value = "1";
+    cartItemInputDecrease.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M21.1667 10.34H2.83333C2.37292 10.34 2 10.7129 2 11.1733V12.84C2 13.3004 2.37292 13.6733 2.83333 13.6733H21.1667C21.6271 13.6733 22 13.3004 22 12.84V11.1733C22 10.7129 21.6271 10.34 21.1667 10.34Z"
+                fill="white" />
+            </svg>
+    `;
+    cartItemInputIncrease.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M21.1667 10.3333H13.6667V2.83333C13.6667 2.37292 13.2937 2 12.8333 2H11.1667C10.7063 2 10.3333 2.37292 10.3333 2.83333V10.3333H2.83333C2.37292 10.3333 2 10.7063 2 11.1667V12.8333C2 13.2937 2.37292 13.6667 2.83333 13.6667H10.3333V21.1667C10.3333 21.6271 10.7063 22 11.1667 22H12.8333C13.2937 22 13.6667 21.6271 13.6667 21.1667V13.6667H21.1667C21.6271 13.6667 22 13.2937 22 12.8333V11.1667C22 10.7063 21.6271 10.3333 21.1667 10.3333Z"
+                fill="white" />
+            </svg>
+    `
+
+    cartItemInput.setAttribute("data-amount", "true");
+
+    cartItemInputDecrease.addEventListener("click", (e: MouseEvent) => changeAmount(e.currentTarget as HTMLButtonElement, -1));
+    cartItemInputIncrease.addEventListener("click", (e: MouseEvent) => changeAmount(e.currentTarget as HTMLButtonElement, 1));
+
+    function changeAmount(target: HTMLButtonElement, n: number) {
+        console.log(target.closest("input"));
+    }
+
+    cartItemInputWrap.append(cartItemInputDecrease, cartItemInput, cartItemInputIncrease);
+    cartItemWrap.append(cartItemTitle, cartItemPrice, cartItemInputWrap);
+
+    return cartItemWrap;
+}

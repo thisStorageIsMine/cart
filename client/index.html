@@ -43,39 +43,17 @@
 
     </section>
 
-    <section id="cart"
-        class="bg-slate-200 flex flex-col gap-8 py-20 px-12 overflow-scroll text-slate-200 text-2xl relative min-h-screen">
+    <section id="cart" class="bg-slate-200  flex flex-col gap-8 py-20 px-12 text-slate-200 text-2xl relative h-screen">
         <h2 class="text-4xl text-slate-800">Корзина</h2>
 
-        <div class=" bg-slate-800 rounded-xl w-full h-24 flex gap-12 justify-between items-center py-2 px-4">
-            <h2 class="w-[200px] text-ellipsis">Футболка</h2>
-            <p class="w-[200px] text-xl">2999 &#8381;</p>
+        <div id="cart-goods" class="overflow-scroll flex flex-col gap-8">
 
-            <div class="flex justify-center items-center">
-                <button class="flex justify-center items-center rounded-full border border-white p-1">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M21.1667 10.34H2.83333C2.37292 10.34 2 10.7129 2 11.1733V12.84C2 13.3004 2.37292 13.6733 2.83333 13.6733H21.1667C21.6271 13.6733 22 13.3004 22 12.84V11.1733C22 10.7129 21.6271 10.34 21.1667 10.34Z"
-                            fill="white" />
-                    </svg>
-                </button>
-
-                <input
-                    class="w-12 text-center bg-transparent text-slate-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    type="number" value="1">
-
-                <button class="flex justify-center items-center rounded-full border border-white p-1">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M21.1667 10.3333H13.6667V2.83333C13.6667 2.37292 13.2937 2 12.8333 2H11.1667C10.7063 2 10.3333 2.37292 10.3333 2.83333V10.3333H2.83333C2.37292 10.3333 2 10.7063 2 11.1667V12.8333C2 13.2937 2.37292 13.6667 2.83333 13.6667H10.3333V21.1667C10.3333 21.6271 10.7063 22 11.1667 22H12.8333C13.2937 22 13.6667 21.6271 13.6667 21.1667V13.6667H21.1667C21.6271 13.6667 22 13.2937 22 12.8333V11.1667C22 10.7063 21.6271 10.3333 21.1667 10.3333Z"
-                            fill="white" />
-                    </svg>
-                </button>
-            </div>
 
         </div>
 
-        <div class="absolute left-0 bottom-0 bg-slate-300 w-full py-4 px-6" id=" payment">
+
+
+        <div class="absolute left-0 bottom-0 bg-slate-300 w-full py-4 px-6 " id=" payment">
             <div>
                 <h3>Всего</h3>
 
