@@ -20,7 +20,6 @@ const pool = mysql.createPool({
     database: process.env.DATABASE
 });
 
-console.log(process.env.HOST);
 
 // Роуты
 server.get('/', async (req, reply) => {
