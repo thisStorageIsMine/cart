@@ -3,7 +3,8 @@ const HOST = "localhost",
 
 
 const storageNode = document.getElementById("storage"),
-    cartNode = document.getElementById("cart-goods");
+    cartNode = document.getElementById("cart-goods"),
+    cartSum = document.getElementById("cart-sum");
 
 cartNode!.style.display = "none";
 
@@ -42,6 +43,7 @@ function createGoods(storage: Good[]) {
     }
 }
 
+// Создаём карточку для всех товаров
 function createGood(good: Good) {
     if (!storageNode) return;
 
@@ -91,8 +93,10 @@ function createGoodsError() {
     `;
 }
 
+
+// Добавляем в корзину
 function add2Cart(e: MouseEvent) {
-    if (!e.currentTarget) return;
+    if (!e.currentTarget || !cartSum) return;
     const target = e.currentTarget as HTMLButtonElement;
 
     if (isGoodExist(target.dataset.name || "")) return;
@@ -101,23 +105,10 @@ function add2Cart(e: MouseEvent) {
 
 
     cartNode?.append(cartItem);
+    cartSum!.textContent = String(Number(cartSum.textContent) + Number(target.dataset.price));
 }
 
-
-function isGoodExist(name: string) {
-    if (!cartNode?.childNodes) return;
-
-    for (let good of cartNode?.children) {
-        if (good instanceof HTMLElement) {
-
-            if (good.dataset.name === name) return true;
-
-        }
-    }
-
-    return false
-}
-
+//Cоздаём карточку дял корзины
 function createGoodCart(target: HTMLButtonElement) {
     const cartItemWrap = document.createElement("div"),
         cartItemTitle = document.createElement("h2"),
@@ -157,11 +148,27 @@ function createGoodCart(target: HTMLButtonElement) {
 
     cartItemInput.setAttribute("data-amount", "true");
 
-    cartItemInputDecrease.addEventListener("click", (e: MouseEvent) => changeAmount(e.currentTarget as HTMLButtonElement, -1));
-    cartItemInputIncrease.addEventListener("click", (e: MouseEvent) => changeAmount(e.currentTarget as HTMLButtonElement, 1));
+    cartItemInputDecrease.addEventListener("click", (e: MouseEvent) => changeAmount(-1, Number(target.dataset.price)));
+    cartItemInputIncrease.addEventListener("click", (e: MouseEvent) => changeAmount(1, Number(target.dataset.price)));
+    cartItemInput.addEventListener("change", (e: Event) => {
+        const target = e.currentTarget as HTMLInputElement;
+        changeAmount(Number(target.value), Number(target.dataset.price), false)
+    })
 
-    function changeAmount(target: HTMLButtonElement, n: number) {
-        console.log(target.closest("input"));
+    function changeAmount(n: number, price: number, ischangeCameFromBtn: boolean = true) {
+        if (!cartSum) return;
+
+        const oldValue = +cartItemInput.value;
+        const newValue = (ischangeCameFromBtn) ? Number(oldValue) + n : n;
+        cartItemInput.value = String(newValue);
+
+        if (newValue <= 0) {
+            cartSum.textContent = String(Number(cartSum!.textContent) - price);
+            cartItemWrap.remove()
+
+        }
+
+
     }
 
     cartItemInputWrap.append(cartItemInputDecrease, cartItemInput, cartItemInputIncrease);
@@ -169,3 +176,18 @@ function createGoodCart(target: HTMLButtonElement) {
 
     return cartItemWrap;
 }
+
+function isGoodExist(name: string) {
+    if (!cartNode?.childNodes) return;
+
+    for (let good of cartNode?.children) {
+        if (good instanceof HTMLElement) {
+
+            if (good.dataset.name === name) return true;
+
+        }
+    }
+
+    return false
+}
+

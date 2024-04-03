@@ -1,5 +1,5 @@
 var HOST = "localhost", PORT = "2861";
-var storageNode = document.getElementById("storage"), cartNode = document.getElementById("cart-goods");
+var storageNode = document.getElementById("storage"), cartNode = document.getElementById("cart-goods"), cartSum = document.getElementById("cart-sum");
 cartNode.style.display = "none";
 window.addEventListener("DOMContentLoaded", function () { return fetchGoods(); });
 function fetchGoods() {
@@ -20,6 +20,7 @@ function createGoods(storage) {
         createGood(good);
     }
 }
+// Создаём карточку для всех товаров
 function createGood(good) {
     if (!storageNode)
         return;
@@ -42,27 +43,18 @@ function createGood(good) {
 function createGoodsError() {
     document.body.innerHTML = "\n\n    <h1 class=\"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-400 text-6xl\">\n    \u0427\u0442\u043E-\u0442\u043E \u043F\u043E\u0448\u043B\u043E \u043D\u0435 \u0442\u0430\u043A...<br>\n    <p class=\"text-4xl mt-6 text-red-400/[70%]\">\n        \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0432\u043A\u043B\u044E\u0447\u0435\u043D \u043B\u0438 \u0441\u0435\u0440\u0432\u0435\u0440\n\n    </p>\n</h1>\n    ";
 }
+// Добавляем в корзину
 function add2Cart(e) {
-    if (!e.currentTarget)
+    if (!e.currentTarget || !cartSum)
         return;
     var target = e.currentTarget;
     if (isGoodExist(target.dataset.name || ""))
         return;
     var cartItem = createGoodCart(target);
     cartNode === null || cartNode === void 0 ? void 0 : cartNode.append(cartItem);
+    cartSum.textContent = String(Number(cartSum.textContent) + Number(target.dataset.price));
 }
-function isGoodExist(name) {
-    if (!(cartNode === null || cartNode === void 0 ? void 0 : cartNode.childNodes))
-        return;
-    for (var _i = 0, _a = cartNode === null || cartNode === void 0 ? void 0 : cartNode.children; _i < _a.length; _i++) {
-        var good = _a[_i];
-        if (good instanceof HTMLElement) {
-            if (good.dataset.name === name)
-                return true;
-        }
-    }
-    return false;
-}
+//Cоздаём карточку дял корзины
 function createGoodCart(target) {
     var cartItemWrap = document.createElement("div"), cartItemTitle = document.createElement("h2"), cartItemPrice = document.createElement("p"), cartItemInputWrap = document.createElement("button"), cartItemInputDecrease = document.createElement("button"), cartItemInputIncrease = document.createElement("button"), cartItemInput = document.createElement("input");
     cartItemWrap.setAttribute("data-name", "".concat(target.dataset.name));
@@ -79,12 +71,37 @@ function createGoodCart(target) {
     cartItemInputDecrease.innerHTML = "\n            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n            <path\n                d=\"M21.1667 10.34H2.83333C2.37292 10.34 2 10.7129 2 11.1733V12.84C2 13.3004 2.37292 13.6733 2.83333 13.6733H21.1667C21.6271 13.6733 22 13.3004 22 12.84V11.1733C22 10.7129 21.6271 10.34 21.1667 10.34Z\"\n                fill=\"white\" />\n            </svg>\n    ";
     cartItemInputIncrease.innerHTML = "\n            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n            <path\n                d=\"M21.1667 10.3333H13.6667V2.83333C13.6667 2.37292 13.2937 2 12.8333 2H11.1667C10.7063 2 10.3333 2.37292 10.3333 2.83333V10.3333H2.83333C2.37292 10.3333 2 10.7063 2 11.1667V12.8333C2 13.2937 2.37292 13.6667 2.83333 13.6667H10.3333V21.1667C10.3333 21.6271 10.7063 22 11.1667 22H12.8333C13.2937 22 13.6667 21.6271 13.6667 21.1667V13.6667H21.1667C21.6271 13.6667 22 13.2937 22 12.8333V11.1667C22 10.7063 21.6271 10.3333 21.1667 10.3333Z\"\n                fill=\"white\" />\n            </svg>\n    ";
     cartItemInput.setAttribute("data-amount", "true");
-    cartItemInputDecrease.addEventListener("click", function (e) { return changeAmount(e.currentTarget, -1); });
-    cartItemInputIncrease.addEventListener("click", function (e) { return changeAmount(e.currentTarget, 1); });
-    function changeAmount(target, n) {
-        console.log(target.closest("input"));
+    cartItemInputDecrease.addEventListener("click", function (e) { return changeAmount(-1, Number(target.dataset.price)); });
+    cartItemInputIncrease.addEventListener("click", function (e) { return changeAmount(1, Number(target.dataset.price)); });
+    cartItemInput.addEventListener("change", function (e) {
+        var target = e.currentTarget;
+        changeAmount(Number(target.value), Number(target.dataset.price), false);
+    });
+    function changeAmount(n, price, ischangeCameFromBtn) {
+        if (ischangeCameFromBtn === void 0) { ischangeCameFromBtn = true; }
+        if (!cartSum)
+            return;
+        var oldValue = +cartItemInput.value;
+        var newValue = (ischangeCameFromBtn) ? Number(oldValue) + n : n;
+        cartItemInput.value = String(newValue);
+        if (newValue <= 0) {
+            cartSum.textContent = String(Number(cartSum.textContent) - price);
+            cartItemWrap.remove();
+        }
     }
     cartItemInputWrap.append(cartItemInputDecrease, cartItemInput, cartItemInputIncrease);
     cartItemWrap.append(cartItemTitle, cartItemPrice, cartItemInputWrap);
     return cartItemWrap;
+}
+function isGoodExist(name) {
+    if (!(cartNode === null || cartNode === void 0 ? void 0 : cartNode.childNodes))
+        return;
+    for (var _i = 0, _a = cartNode === null || cartNode === void 0 ? void 0 : cartNode.children; _i < _a.length; _i++) {
+        var good = _a[_i];
+        if (good instanceof HTMLElement) {
+            if (good.dataset.name === name)
+                return true;
+        }
+    }
+    return false;
 }
