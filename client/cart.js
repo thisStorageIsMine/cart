@@ -38,8 +38,6 @@ var _this = this;
 var HOST = "localhost", PORT = "2861";
 var serverURL = "http://".concat(HOST, ":").concat(PORT);
 var storageNode = document.getElementById("storage"), cartNode = document.getElementById("cart-goods"), cartSum = document.getElementById("cart-sum"), removeDialog = document.getElementById("removeDialog"), notifications = document.getElementById("notifications"), buyBtn = document.getElementById("buy");
-var userID = Math.random() * Date.now();
-localStorage.setItem('id', String(userID));
 window.addEventListener("DOMContentLoaded", function () { return fetchGoods(); });
 // Собираем товары с сервера
 function fetchGoods() {
@@ -89,6 +87,19 @@ function createGood(good) {
 function createGoodsError() {
     document.body.innerHTML = "\n\n    <h1 class=\"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-400 text-6xl\">\n    \u0427\u0442\u043E-\u0442\u043E \u043F\u043E\u0448\u043B\u043E \u043D\u0435 \u0442\u0430\u043A...<br>\n    <p class=\"text-4xl mt-6 text-red-400/[70%]\">\n        \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0432\u043A\u043B\u044E\u0447\u0435\u043D \u043B\u0438 \u0441\u0435\u0440\u0432\u0435\u0440\n\n    </p>\n</h1>\n    ";
 }
+// Наблюдаем, есть ли в корзине товары. Если нет делаем кнопку купить disable
+var mutationObserverConfig = {
+    childList: true,
+    subtree: true
+};
+var mutationObserverCallback = function (mutationList, observer) {
+    buyBtn.disabled = false;
+    if (cartNode.children.length <= 0) {
+        buyBtn.disabled = true;
+    }
+};
+var observer = new MutationObserver(mutationObserverCallback);
+observer.observe(cartNode, mutationObserverConfig);
 // Добавляем в корзину
 function add2Cart(e) {
     if (!e.currentTarget || !cartSum)

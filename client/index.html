@@ -41,8 +41,9 @@
                     class="h-[2px] grow-[2] border-dotted border-b-2 border-slate-500 mt-auto -translate-y-[6px]"></span>
                 <p><span id="cart-sum">0</span> &#8381;</p>
             </div>
-            <button class="bg-[#2f27ce] w-full h-12 rounded-md mt-6 hover:bg-blue-950 hover:text-slate-300"
-                id="buy">Купить</button>
+            <button
+                class=" bg-[#2f27ce] w-full h-12 rounded-md mt-6 enabled:hover:bg-blue-950 enabled:hover:text-slate-300 disabled:brightness-[0.8]"
+                id="buy" disabled>Купить</button>
         </div>
     </section>
 
@@ -61,8 +62,8 @@
                 Удалить
             </button>
 
-            <button class="px-4 py-2 bg-emerald-500 text-xl rounded-md text-slate-100 hover:brightness-90 "
-                velue="cancel" id="x" onclick="window.removeDialog.close(); window.removeDialog.returnValue = 'cancel'">
+            <button class="px-4 py-2 bg-[#2f27ce] text-xl rounded-md text-slate-100 hover:brightness-90 " velue="cancel"
+                id="x" onclick="window.removeDialog.close(); window.removeDialog.returnValue = 'cancel'">
                 Отмена
             </button>
         </div>

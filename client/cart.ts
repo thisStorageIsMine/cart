@@ -4,15 +4,12 @@ const HOST = "localhost",
 const serverURL = `http://${HOST}:${PORT}`;
 
 const storageNode = document.getElementById("storage"),
-    cartNode = document.getElementById("cart-goods"),
+    cartNode = document.getElementById("cart-goods") as HTMLDivElement,
     cartSum = document.getElementById("cart-sum"),
     removeDialog: HTMLDialogElement = document.getElementById("removeDialog") as HTMLDialogElement,
     notifications = document.getElementById("notifications"),
-    buyBtn = document.getElementById("buy");
+    buyBtn = document.getElementById("buy") as HTMLButtonElement;
 
-const userID = Math.random() * Date.now();
-
-localStorage.setItem('id', String(userID));
 
 
 
@@ -112,6 +109,24 @@ function createGoodsError() {
     `;
 }
 
+// Наблюдаем, есть ли в корзине товары. Если нет делаем кнопку купить disable
+
+const mutationObserverConfig: MutationObserverInit = {
+    childList: true,
+    subtree: true
+}
+
+const mutationObserverCallback: MutationCallback = (mutationList, observer) => {
+    buyBtn.disabled = false;
+
+    if (cartNode.children.length <= 0) {
+        buyBtn.disabled = true;
+    }
+}
+
+const observer = new MutationObserver(mutationObserverCallback);
+
+observer.observe(cartNode, mutationObserverConfig)
 
 // Добавляем в корзину
 function add2Cart(e: MouseEvent) {
