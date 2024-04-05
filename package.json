@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx nodemon --env-file .env ./server/server.js",
-    "twrun": "tailwindcss build -i ./client/style.css -o ./client/global.css"
+    "watch": "npx tsc ./client/cart.ts --watch"
   },
   "keywords": [],
   "author": "",

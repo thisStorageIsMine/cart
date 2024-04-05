@@ -1,18 +1,32 @@
 const HOST = "localhost",
     PORT = "2861";
 
+const serverURL = `http://${HOST}:${PORT}`;
 
 const storageNode = document.getElementById("storage"),
     cartNode = document.getElementById("cart-goods"),
-    cartSum = document.getElementById("cart-sum");
+    cartSum = document.getElementById("cart-sum"),
+    removeDialog: HTMLDialogElement = document.getElementById("removeDialog") as HTMLDialogElement,
+    notifications = document.getElementById("notifications"),
+    buyBtn = document.getElementById("buy");
 
-cartNode!.style.display = "none";
+const userID = Math.random() * Date.now();
+
+localStorage.setItem('id', String(userID));
+
+
 
 window.addEventListener("DOMContentLoaded", () => fetchGoods());
 
-
+// Собираем товары с сервера
 function fetchGoods() {
-    const fetchStorage = fetch(`http://${HOST}:${PORT}/storage`)
+    if (!storageNode) return
+
+    storageNode.innerHTML = '';
+
+
+
+    const fetchStorage = fetch(`${serverURL}/storage`)
         .then(data => data.json())
         .then(data => {
             cartNode!.style.display = "";
@@ -23,8 +37,9 @@ function fetchGoods() {
 }
 
 interface Good {
+    id: number;
     name: string;
-    price: number;
+    price?: number;
     amount: number;
 }
 
@@ -54,13 +69,16 @@ function createGood(good: Good) {
         goodBtn = document.createElement("button");
 
     goodWrap.className = "border bg-slate-200 rounded-xl w-full h-24 flex gap-12 justify-between items-center py-2 px-4";
-    goodTitle.className = goodPrice.className = goodAmount.className = "w-[200px] text-ellipsis";
+    goodTitle.className = goodPrice.className = goodAmount.className = "w-[200px] truncate";
     goodBtn.className = "relative py-1 px-2 border-none  shadow-lg rounded-lg bg-slate-100 group flex justify-center items-center hover:bg-slate-900";
 
     goodBtn.setAttribute("data-name", `${good.name}`);
     goodBtn.setAttribute("data-price", `${good.price}`);
     goodBtn.setAttribute("data-amount", `${good.amount}`);
+    goodBtn.setAttribute("data-id", `${good.id}`);
     goodBtn.setAttribute("title", "Добавить в корзину");
+    goodTitle.setAttribute("title", `${good.name}`);
+
 
     goodTitle.textContent = good.name;
     goodPrice.textContent = `${good.price}`;
@@ -80,6 +98,7 @@ function createGood(good: Good) {
 
 }
 
+// Если нам не пришёл ответ с сервера
 function createGoodsError() {
     document.body.innerHTML = `
 
@@ -119,6 +138,10 @@ function createGoodCart(target: HTMLButtonElement) {
         cartItemInput = document.createElement("input");
 
     cartItemWrap.setAttribute("data-name", `${target.dataset.name}`);
+    cartItemWrap.setAttribute("data-amount", `${target.dataset.amount}`);
+    cartItemWrap.setAttribute("data-id", `${target.dataset.id}`);
+    cartItemWrap.setAttribute("data-good-amount", "1");
+
     cartItemTitle.setAttribute("title", `${target.dataset.name}`);
 
     cartItemWrap.className = "bg-slate-800 rounded-xl w-full h-24 flex gap-12 justify-between items-center py-2 px-4 shrink-0";
@@ -146,26 +169,39 @@ function createGoodCart(target: HTMLButtonElement) {
             </svg>
     `
 
-    cartItemInput.setAttribute("data-amount", "true");
+    // cartItemInput.setAttribute("data-amount", "true");
 
     cartItemInputDecrease.addEventListener("click", (e: MouseEvent) => changeAmount(-1, Number(target.dataset.price)));
     cartItemInputIncrease.addEventListener("click", (e: MouseEvent) => changeAmount(1, Number(target.dataset.price)));
     cartItemInput.addEventListener("change", (e: Event) => {
-        const target = e.currentTarget as HTMLInputElement;
-        changeAmount(Number(target.value), Number(target.dataset.price), false)
+        const eventTarget = e.currentTarget as HTMLInputElement;
+        changeAmount(Number(eventTarget.value), Number(target.dataset.price), false)
     })
 
     function changeAmount(n: number, price: number, ischangeCameFromBtn: boolean = true) {
         if (!cartSum) return;
 
-        const oldValue = +cartItemInput.value;
-        const newValue = (ischangeCameFromBtn) ? Number(oldValue) + n : n;
-        cartItemInput.value = String(newValue);
+        const oldValue = Number(cartItemInput.value);
+        const newValue = (ischangeCameFromBtn) ? oldValue + n : n;
+        const maxAmount = Number(target.dataset.amount);
+
 
         if (newValue <= 0) {
-            cartSum.textContent = String(Number(cartSum!.textContent) - price);
-            cartItemWrap.remove()
+            deleteFromCart(cartItemWrap, cartItemInput, price);
+        } else {
+            cartItemInput.value = String(newValue);
 
+
+            if (Number(cartItemInput.value) > maxAmount) {
+                cartItemInput.value = String(maxAmount);
+
+                cartSum.textContent = String(price * maxAmount);
+                cartItemWrap.setAttribute("data-good-amount", `${maxAmount}`);
+                return;
+            }
+
+            cartSum.textContent = (ischangeCameFromBtn) ? String(Number(cartSum!.textContent) + (price * n)) : String(price * newValue);
+            cartItemWrap.setAttribute("data-good-amount", `${newValue}`);
         }
 
 
@@ -177,12 +213,30 @@ function createGoodCart(target: HTMLButtonElement) {
     return cartItemWrap;
 }
 
+
+// Удалить товар из корзины
+function deleteFromCart(nodeTodelete: HTMLElement, input: HTMLInputElement, price: number) {
+    if (!cartSum) return;
+
+    removeDialog.showModal();
+    removeDialog.addEventListener("close", () => {
+
+        if (removeDialog.returnValue === "remove") {
+            cartSum.textContent = String(Number(cartSum!.textContent) - price);
+            nodeTodelete.remove()
+        } else {
+            input.value = String(1);
+        }
+    }, { once: true });
+}
+
+
+// Существует ли товар в корзине
 function isGoodExist(name: string) {
     if (!cartNode?.childNodes) return;
 
     for (let good of cartNode?.children) {
         if (good instanceof HTMLElement) {
-
             if (good.dataset.name === name) return true;
 
         }
@@ -191,3 +245,103 @@ function isGoodExist(name: string) {
     return false
 }
 
+// Покупаем!!!!111!
+
+interface UpdateGoods {
+    id: number;
+    name: string;
+    amount: number;
+}
+
+buyBtn?.addEventListener("click", async () => {
+
+    const json: string = JSON.stringify(collectGoodsFromCart());
+
+    const reply = await updateStorage(json),
+        status = reply.status,
+        repluJSON = await reply.json();
+
+    createNotify(status);
+
+    if (status === 200) {
+        fetchGoods();
+    }
+});
+
+function collectGoodsFromCart() {
+    if (!cartNode?.children) return;
+
+    const goods: HTMLElement[] = Array.from(cartNode?.children) as HTMLElement[],
+        goodsArr: Good[] = [];
+
+    goods.map((good: HTMLElement) => {
+        const obj: Good = {
+            id: Number(good.dataset.id),
+            name: good.dataset.name || "",
+            amount: Number(good.dataset.goodAmount)
+        }
+
+        goodsArr.push(obj);
+    })
+
+    return goodsArr
+}
+
+
+async function updateStorage(json: string) {
+    const reply = await fetch(`${serverURL}/update-storage`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": 'application/json'
+        },
+        body: json
+    })
+
+    return reply;
+}
+
+
+
+
+// Дальше будем создавать верстку уведомленияя
+const notificationWrapClasses = ["w-full", "rounded", "flex", "jistify-start", "flex-col", "gap-2", "bg-slate-200", "shadow-md", "py-[10px]", "min-h-[49px]", "relative", "overflow-hidden"],
+    notificationHeaderWrapClasses = ["border-b", "border-b-slate-500", "px-[15px]", "pb-[5px]"],
+    notificationParagraphClasses = ["text-sm", "px-[15px]", 'text-slate-500'],
+    successHeaderClasses = ["text-emerald-400", "text-md"],
+    failureHeaderClasses = ["text-red-300", "text-md"];
+
+const cross = `<svg xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 384 512"
+                class="absolute right-[15px] top-[13.5px] cursor-pointer"
+                width="15px"
+                onclick="this.parentNode.remove()"
+                >
+                <path
+                    d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+            </svg>`;
+
+function createNotify(status: number) {
+    if (!notifications) return;
+
+    const wrap = document.createElement("div"),
+        headerWrap = document.createElement("div"),
+        header = document.createElement("h4"),
+        paragraph = document.createElement("p");
+
+    const headerClasses = (status === 200) ? successHeaderClasses : failureHeaderClasses,
+        headerText = (status === 200) ? "Успех!" : "Не вышло D:";
+
+    wrap.classList.add(...notificationWrapClasses);
+    headerWrap.classList.add(...notificationHeaderWrapClasses);
+    header.classList.add(...headerClasses);
+    paragraph.classList.add(...notificationParagraphClasses);
+
+    header.textContent = headerText;
+    paragraph!.textContent = (status === 200) ? "Поздравляю, вы купили товар!" : 'Что-то пошло не так(';
+
+    headerWrap.append(header);
+    wrap.append(headerWrap, paragraph);
+    wrap.innerHTML += cross;
+
+    notifications.append(wrap);
+}
